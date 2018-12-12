@@ -15,6 +15,7 @@ class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDele
     let currencyArray = ["Pick a coin" ,"AUD", "BRL","CAD","CNY","EUR","GBP","HKD","IDR","ILS","INR","JPY","MXN","NOK","NZD","PLN","RON","RUB","SEK","SGD","USD","ZAR"]
     var finalURL = ""
     let currencyLocationArray = ["" ,"en_AU", "pt_BR", "en_CA", "zh_CN", "ca_ES", "en_GB", "en_HK", "id_ID", "he_IL", "hi_IN", "ja_JP", "es_MX", "nb_NO", "en_NZ", "pl_PL", "ro_RO", "ce_RU", "sv_SE", "en_SG", "en_US", "en_ZA"]
+    var location = ""
 
     @IBOutlet weak var bitcoinPriceLabel: UILabel!
     @IBOutlet weak var currencyPicker: UIPickerView!
@@ -41,24 +42,25 @@ class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDele
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         finalURL = baseURL + currencyArray[row]
+        location = currencyLocationArray[row]
         
         if row == 0 {
             bitcoinPriceLabel.text = "Pick a coin"
         }
         else {
-            getBitCurrency(url: finalURL, location: currencyLocationArray[row])
+            getBitCurrency(url: finalURL)
         }
         
     }
 
     
-    func getBitCurrency(url: String, location: String) {
+    func getBitCurrency(url: String) {
         Alamofire.request(url, method: .get)
             .responseJSON { response in
                 if response.result.isSuccess {
                     print("Sucess")
                     let bitJSON: JSON = JSON(response.result.value!)
-                    self.updateCurrency(json: bitJSON, location: location)
+                    self.updateCurrency(json: bitJSON)
                 }
                 else {
                     print("Error: \(response.result.error!)")
@@ -68,7 +70,7 @@ class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDele
     }
     
     
-    func updateCurrency(json: JSON, location: String) {
+    func updateCurrency(json: JSON) {
         
         if let bitcoinResult = json["last"].double {
             bitcoinPriceLabel.text = formatCurrency(returnedValue: bitcoinResult, location: location)
